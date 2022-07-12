@@ -12,6 +12,7 @@ const Layout = ({children, ...props}) => {
                 <title>Optimizely Fullstack Javascript SDK Demo</title>
                 <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,300i,600,600i" rel="stylesheet" />
                 <meta httpEquiv="Content-Security-Policy" content="upgrade-insecure-requests"></meta>
+                <script type="text/javascript" src="https://cdn.optimizely.com/js/21811700868.js"></script>
             </Head>
 
             <style dangerouslySetInnerHTML={{ __html: props.stylesheet }} />
