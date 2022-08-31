@@ -2,6 +2,8 @@
 
 This project makes uses of NextJs, Optimizely Fullstack and the JS SDK.
 
+***Webhook and datafile example***:  Look at `next.config.js` and `scripts/getOptimizelyDatafile.js`
+
 ## Live Site URL & Status 👺
 
 - [Website](https://optimizely-fullstack-javascript.netlify.app/)

@@ -1,12 +1,12 @@
 import React from 'react'
 
-const ComponentB  = (({name}) => {
+const FeatureFlagComponent  = (({name}) => {
     return (
         <section id="banner" >
             <div className="container">
-                <p>Welcome {name} to our store<br /></p>
+                <p>Welcome This Feature if Turned On<br /></p>
             </div>
 		</section>)
 })
 
-export default ComponentB
+export default FeatureFlagComponent

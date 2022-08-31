@@ -1,30 +1,29 @@
 import Head from 'next/head'
 import React, { useEffect, useState } from "react";
 import { v4 as uuidv4 } from 'uuid';
+import { createInstance } from "@optimizely/optimizely-sdk";
 
 import { useRouter } from 'next/router'
 
-import ComponentA from "../component/Experimentation/ComponentA";
-import ComponentB from "../component/Experimentation/ComponentB";
-
-import {
-  createInstance
-} from "@optimizely/optimizely-sdk";
+import ABComponent from "../component/ABComponent";
+import FeatureFlagComponent from "../component/FeatureFlagComponent";
+import MultiArmBanditComponent from "../component/MultiArmBanditComponent";
 
 const sdkKey = process.env.NEXT_PUBLIC_SDK_KEY;
 const dataFileUrl = `https://cdn.optimizely.com/datafiles/${sdkKey}.json`;
 
-const optimizelyClient = createInstance({
-  datafile: props?.datafile,
-});
-
 export default function Home({...props}) {
 
-  const [ isFeatureEnabled, renderIsFeatureEnabled ] = useState(true);
-  const [ componentName, setComponentName ] = useState('');
-  const [ postData, setPostData ] = useState({});
+  const [ isFeatureEnabled, renderIsFeatureEnabled ] = useState(false);
+  let [ backgroundColor, setBackgroundColor ] = useState('');
+  let [ componentTitle, setComponentTitle ] = useState('');
+  let [ postData, setPostData ] = useState({});
 
-  const router = useRouter()
+  const router = useRouter();
+
+  const optimizelyClient = createInstance({
+    datafile: props?.datafile,
+  });
 
   // Got user Id either via query-string, or, create a random one
   const { id, location } = router.query
@@ -45,30 +44,33 @@ export default function Home({...props}) {
   useEffect(() => {
 
     optimizelyClient.onReady().then(() => {
-      const featureFlagTargetedDelivery = optimizelyUserContext.decide('feature_flag');
-      console.log('featureFlagTargetedDelivery', featureFlagTargetedDelivery.enabled);
 
-      setComponentName(featureFlagTargetedDelivery.variables.name);
-      renderIsFeatureEnabled(featureFlagTargetedDelivery.enabled);
+       // Feature flag code
+       const featureFlag = optimizelyUserContext.decide('feature_flag');
+       console.log('featureFlag', featureFlag);
+       renderIsFeatureEnabled(featureFlag.enabled);
 
-      const usersBucketedExperimentKey = optimizelyClient.activate('a_b_test_multi-armed_bandit', userId);
-      const api = optimizelyClient.getFeatureVariable('a_b_test', 'api_configuration', userId);
+       // AB Testing Code
+       const abTestFlag = optimizelyUserContext.decide('ab_test');
+       console.log('abTest', abTestFlag);
+       setBackgroundColor(abTestFlag.variables.backgroundcolour);
+       setComponentTitle(abTestFlag.variables.component_title);
+
+      /// Multi-arm bandit code
+      const apiDataJson = optimizelyClient.getFeatureVariable('multi-arm_bandit', 'api_data', userId);
+      const apiUrl = apiDataJson?.url;
 
       const fetchData = async () => {
-        const response = await fetch(api.url);
+        const response = await fetch(apiUrl);
         const json = await response.json();
 
-        console.log('posts', api.url, json);
+        console.log('API Call', apiUrl, json);
         setPostData(json);
       }
 
       fetchData().catch(console.error);
     });
-  }, [optimizelyUserContext]);
-
-  const bannerClicked = () => {
-    optimizelyClient.track('banner_click', userId);
-  }
+  }, []);
 
   return (
     <>
@@ -82,56 +84,16 @@ export default function Home({...props}) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <section id="features">
-        <div className="container" id="feature-container">
-          <header>
-            <h2>
-              <strong>
-                <a href="#">
-                  {componentName}
-                </a>
-              </strong>
-            </h2>
-          </header>
-        </div>
-      </section>
-
-      {isFeatureEnabled ?
-        <ComponentA userId={userId} /> : <ComponentB />
+      {isFeatureEnabled &&
+        <FeatureFlagComponent userId={userId} optimizelyClient={optimizelyClient} />
       }
 
       <section id="main">
-					<div className="container">
-						<div className="row">
 
-              <article className="box post" id="article">
+        <ABComponent key={`${componentTitle}${backgroundColor}`} userId={userId} optimizelyClient={optimizelyClient} backgroundColor={backgroundColor} componentTitle={componentTitle} />
 
-                <header>
-                  <h2>
-                    {postData.title}
-                  </h2>
-                </header>
+        <MultiArmBanditComponent key={postData.id} userId={userId} optimizelyClient={optimizelyClient} postId={postData.id} title={postData.title} body={postData.body}/>
 
-                <a href="#" className="image featured">
-                  <img src={`./images/${postData.id}.png`} alt={postData.title} />
-                </a>
-
-                <p className="post-data">
-                  {postData.body}
-                </p>
-
-                <ul className="actions">
-                  <li>
-                    <button className="button icon solid fa-file" onClick={bannerClicked}>
-                      Buy Now
-                    </button>
-                  </li>
-                </ul>
-
-              </article>
-
-            </div>
-          </div>
       </section>
     </>
   )

@@ -5,7 +5,7 @@ import stylesheet from '../styles/main.scss'
 
 function MyApp({ Component, pageProps }) {
 
-const props = {...stylesheet, ...pageProps};
+  const props = {...stylesheet, ...pageProps};
 
   return (<>
             <TopHeader />

@@ -4,15 +4,22 @@ import Link from "next/link";
 export default function TopHeader() {
 
     const navLinks = [
-        { name: "Render Feature Flag Status",
-            path: "/"
+        { name: "Demo",
+        path: "/"
         },
-        { name: "Track Metrics",
+        { name: "Webhook",
+            path: "/web-hook?id=1"
+        },
+        { name: "Metrics",
             path: "/metric"
         },
         {
-            name: "User Profile Example",
+            name: "User Profile",
             path: "/profile",
+        },
+        {
+            name: "Events",
+            path: "/events?id=1",
         }
     ];
 

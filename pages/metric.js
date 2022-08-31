@@ -1,9 +1,7 @@
 import Head from 'next/head'
 import { v4 as uuidv4 } from 'uuid';
 import styles from '../styles/Home.module.css'
-import {
-  createInstance
-} from "@optimizely/optimizely-sdk";
+import { createInstance } from "@optimizely/optimizely-sdk";
 
 const sdkKey = process.env.NEXT_PUBLIC_SDK_KEY;
 
@@ -14,7 +12,7 @@ export default function Home() {
     eventFlushInterval: 3000,
     datafileOptions: {
       autoUpdate: true,
-      updateInterval: 600000, // 10 minutes
+      updateInterval: 100000, // 10 minutes
     },
   });
 
